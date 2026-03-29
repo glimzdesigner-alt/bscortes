@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User, setPersistence, inMemoryPersistence } from 'firebase/auth';
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../utils/firestoreErrors';
 import { LogOut, Plus, Trash2 } from 'lucide-react';
@@ -49,6 +49,8 @@ export default function Admin() {
     e.preventDefault();
     setLoginError('');
     try {
+      // Força a persistência em memória ANTES do login para contornar o bloqueio de cookies do iframe
+      await setPersistence(auth, inMemoryPersistence);
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       console.error("Login Error:", error);
@@ -67,7 +69,7 @@ export default function Admin() {
           setLoginError('Esta conta de usuário foi desativada.');
           break;
         case 'auth/network-request-failed':
-          setLoginError('Erro de rede. Verifique sua conexão com a internet.');
+          setLoginError('O navegador está bloqueando o login (cookies de terceiros). Tente abrir o site em uma nova guia.');
           break;
         default:
           setLoginError(`Erro ao fazer login: ${error.message || 'Tente novamente mais tarde.'}`);
