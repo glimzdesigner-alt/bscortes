@@ -210,13 +210,13 @@ export default function Landing() {
               transition={{ duration: 0.5 }}
             >
               <span className="inline-block py-1 px-3 rounded-full bg-blue-100 text-blue-800 text-sm font-semibold tracking-wide mb-6">
-                Especialistas em Corte de Tecidos
+                Especialista em Corte de Tecidos
               </span>
               <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
                 Precisão e Qualidade para a sua <span className="text-orange-500">Confecção</span>.
               </h1>
               <p className="text-xl text-slate-600 mb-10 max-w-2xl leading-relaxed">
-                Oferecemos serviços profissionais de risco, enfesto e corte para todos os tipos de tecidos. Otimizamos seu material e garantimos o padrão perfeito para a costura.
+                Ofereço serviços profissionais de risco, enfesto e corte para todos os tipos de tecidos. Otimizo seu material e garanto o padrão perfeito para a costura.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a 
@@ -244,7 +244,7 @@ export default function Landing() {
       <section id="servicos" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Nossos Serviços</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Meus Serviços</h2>
             <p className="text-lg text-slate-600">
               Processo completo desde o recebimento do rolo até a entrega das peças prontas para a facção.
             </p>
@@ -274,11 +274,11 @@ export default function Landing() {
       {/* Fabrics Section */}
       <section id="tecidos" className="py-24 bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="max-w-3xl mx-auto">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Tecidos que Trabalhamos</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">Tecidos que Trabalho</h2>
               <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-                Temos experiência e maquinário adequado para lidar com uma vasta gama de materiais, desde os mais pesados até os mais delicados, garantindo um corte limpo e sem desfiados.
+                Tenho experiência e maquinário adequado para lidar com uma vasta gama de materiais, desde os mais pesados até os mais delicados, garantindo um corte limpo e sem desfiados.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -306,21 +306,6 @@ export default function Landing() {
                 </p>
               </div>
             </div>
-            
-            <div className="relative">
-              <div className="aspect-[4/5] rounded-2xl overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1584227365313-094e09f4b52b?q=80&w=1974&auto=format&fit=crop" 
-                  alt="Trabalho com tecidos" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-              <div className="absolute -bottom-6 -left-6 bg-blue-700 text-white p-8 rounded-2xl shadow-xl max-w-xs hidden md:block">
-                <p className="font-bold text-2xl mb-2">+{settings.yearsOfExperience} Anos</p>
-                <p className="text-blue-100">De experiência no mercado de confecção.</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -330,7 +315,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Pronto para otimizar sua produção?</h2>
           <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-            Entre em contato agora mesmo para fazer um orçamento sem compromisso. Atendemos pequenas, médias e grandes confecções.
+            Entre em contato agora mesmo para fazer um orçamento sem compromisso. Atendo pequenas, médias e grandes confecções.
           </p>
           <a 
             href={whatsappUrl}
@@ -343,6 +328,32 @@ export default function Landing() {
           </a>
         </div>
       </section>
+
+      {/* Map Section */}
+      {settings.address && (
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Minha Localização</h2>
+              <p className="text-lg text-slate-600 flex items-center justify-center gap-2">
+                <MapPin className="w-5 h-5 text-blue-700" />
+                {settings.address}
+              </p>
+            </div>
+            <div className="w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+              <iframe
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(settings.address)}&output=embed`}
+              ></iframe>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer id="sobre" className="bg-slate-50 py-12 border-t border-slate-200">
@@ -357,7 +368,7 @@ export default function Landing() {
                 )}
               </div>
               <p className="text-slate-600">
-                Especialistas em corte de tecidos para a indústria da moda e confecção.
+                Especialista em corte de tecidos para a indústria da moda e confecção.
               </p>
             </div>
             <div>
@@ -420,7 +431,7 @@ export default function Landing() {
       >
         <MessageCircle className="w-7 h-7" />
         <span className="absolute right-full mr-4 bg-white text-slate-800 px-3 py-1 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none">
-          Fale com a gente!
+          Fale comigo!
         </span>
       </a>
     </div>
