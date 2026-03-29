@@ -50,9 +50,28 @@ export default function Admin() {
     setLoginError('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login Error:", error);
-      setLoginError('E-mail ou senha incorretos.');
+      
+      // Handle specific Firebase error codes
+      switch (error.code) {
+        case 'auth/invalid-credential':
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          setLoginError('E-mail ou senha incorretos.');
+          break;
+        case 'auth/invalid-email':
+          setLoginError('O formato do e-mail é inválido.');
+          break;
+        case 'auth/user-disabled':
+          setLoginError('Esta conta de usuário foi desativada.');
+          break;
+        case 'auth/network-request-failed':
+          setLoginError('Erro de rede. Verifique sua conexão com a internet.');
+          break;
+        default:
+          setLoginError(`Erro ao fazer login: ${error.message || 'Tente novamente mais tarde.'}`);
+      }
     }
   };
 
