@@ -115,11 +115,10 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <Scissors className="w-6 h-6 text-blue-700" />
               {settings.logoUrl.startsWith('http') ? (
-                <img src={settings.logoUrl} alt="Logo" className="h-8 object-contain" />
+                <img src={settings.logoUrl} alt="Logo" className="h-12 object-contain" />
               ) : (
-                <span className="font-bold text-xl tracking-tight text-blue-900">{settings.logoUrl}</span>
+                <span className="font-bold text-2xl tracking-tight text-blue-900">{settings.logoUrl}</span>
               )}
             </div>
             <div className="hidden md:flex space-x-8">
@@ -303,11 +302,10 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Scissors className="w-6 h-6 text-blue-700" />
                 {settings.logoUrl.startsWith('http') ? (
-                  <img src={settings.logoUrl} alt="Logo" className="h-8 object-contain" />
+                  <img src={settings.logoUrl} alt="Logo" className="h-12 object-contain" />
                 ) : (
-                  <span className="font-bold text-xl tracking-tight text-blue-900">{settings.logoUrl}</span>
+                  <span className="font-bold text-2xl tracking-tight text-blue-900">{settings.logoUrl}</span>
                 )}
               </div>
               <p className="text-slate-600">
