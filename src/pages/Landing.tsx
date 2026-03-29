@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Scissors, Ruler, Layers, Package, CheckCircle, MessageCircle, Phone, MapPin } from 'lucide-react';
 import * as Icons from 'lucide-react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const IconRenderer = ({ name, className }: { name: string, className: string }) => {
@@ -44,12 +44,22 @@ const defaultFabrics = [
 ];
 
 export default function Landing() {
-  const whatsappNumber = "5511999999999"; // Replace with actual number
-  const whatsappMessage = "Olá! Gostaria de fazer um orçamento para corte de tecidos.";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-
   const [services, setServices] = useState<any[]>(defaultServices);
   const [fabrics, setFabrics] = useState<any[]>(defaultFabrics);
+  const [settings, setSettings] = useState({
+    address: 'São Paulo, SP (Brás/Bom Retiro)',
+    phone: '(11) 99999-9999',
+    whatsapp: '5511999999999',
+    hours: 'Segunda a Sexta: 08:00 às 18:00\nSábado: 08:00 às 12:00',
+    logoUrl: 'BS Cortes',
+    yearsOfExperience: '10',
+    email: '',
+    instagram: ''
+  });
+
+  const whatsappNumber = settings.whatsapp.replace(/\D/g, '');
+  const whatsappMessage = "Olá! Gostaria de fazer um orçamento para corte de tecidos.";
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -76,6 +86,26 @@ export default function Landing() {
 
     fetchServices();
     fetchFabrics();
+
+    const fetchSettings = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, 'settings', 'general'));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setSettings(prev => {
+            const newSettings = { ...prev };
+            Object.keys(data).forEach(key => {
+              if (data[key]) newSettings[key as keyof typeof prev] = data[key];
+            });
+            return newSettings;
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching settings", error);
+      }
+    };
+
+    fetchSettings();
   }, []);
 
   return (
@@ -86,7 +116,11 @@ export default function Landing() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
               <Scissors className="w-6 h-6 text-blue-700" />
-              <span className="font-bold text-xl tracking-tight text-blue-900">BS<span className="text-orange-500"> Cortes</span></span>
+              {settings.logoUrl.startsWith('http') ? (
+                <img src={settings.logoUrl} alt="Logo" className="h-8 object-contain" />
+              ) : (
+                <span className="font-bold text-xl tracking-tight text-blue-900">{settings.logoUrl}</span>
+              )}
             </div>
             <div className="hidden md:flex space-x-8">
               <a href="#servicos" className="text-slate-600 hover:text-orange-500 transition-colors font-medium">Serviços</a>
@@ -236,7 +270,7 @@ export default function Landing() {
                 />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-blue-700 text-white p-8 rounded-2xl shadow-xl max-w-xs hidden md:block">
-                <p className="font-bold text-2xl mb-2">+10 Anos</p>
+                <p className="font-bold text-2xl mb-2">+{settings.yearsOfExperience} Anos</p>
                 <p className="text-blue-100">De experiência no mercado de confecção.</p>
               </div>
             </div>
@@ -270,7 +304,11 @@ export default function Landing() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Scissors className="w-6 h-6 text-blue-700" />
-                <span className="font-bold text-xl tracking-tight text-blue-900">BS<span className="text-orange-500"> Cortes</span></span>
+                {settings.logoUrl.startsWith('http') ? (
+                  <img src={settings.logoUrl} alt="Logo" className="h-8 object-contain" />
+                ) : (
+                  <span className="font-bold text-xl tracking-tight text-blue-900">{settings.logoUrl}</span>
+                )}
               </div>
               <p className="text-slate-600">
                 Especialistas em corte de tecidos para a indústria da moda e confecção.
@@ -279,30 +317,49 @@ export default function Landing() {
             <div>
               <h4 className="font-bold text-slate-900 mb-4">Contato</h4>
               <ul className="space-y-3 text-slate-600">
-                <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-blue-700" />
-                  (11) 99999-9999
-                </li>
-                <li className="flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4 text-green-600" />
-                  WhatsApp disponível
-                </li>
-                <li className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-blue-700" />
-                  São Paulo, SP (Brás/Bom Retiro)
-                </li>
+                {settings.phone && (
+                  <li className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-blue-700" />
+                    {settings.phone}
+                  </li>
+                )}
+                {settings.whatsapp && (
+                  <li className="flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4 text-green-600" />
+                    WhatsApp: {settings.whatsapp}
+                  </li>
+                )}
+                {settings.email && (
+                  <li className="flex items-center gap-2">
+                    <Icons.Mail className="w-4 h-4 text-blue-700" />
+                    <a href={`mailto:${settings.email}`} className="hover:text-blue-600 transition-colors">{settings.email}</a>
+                  </li>
+                )}
+                {settings.instagram && (
+                  <li className="flex items-center gap-2">
+                    <Icons.Instagram className="w-4 h-4 text-pink-600" />
+                    <a href={settings.instagram.startsWith('http') ? settings.instagram : `https://instagram.com/${settings.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-pink-600 transition-colors">
+                      {settings.instagram}
+                    </a>
+                  </li>
+                )}
+                {settings.address && (
+                  <li className="flex items-start gap-2">
+                    <MapPin className="w-4 h-4 text-blue-700 shrink-0 mt-1" />
+                    <span>{settings.address}</span>
+                  </li>
+                )}
               </ul>
             </div>
             <div>
               <h4 className="font-bold text-slate-900 mb-4">Horário de Atendimento</h4>
-              <ul className="space-y-2 text-slate-600">
-                <li>Segunda a Sexta: 08:00 às 18:00</li>
-                <li>Sábado: 08:00 às 12:00</li>
-              </ul>
+              <p className="text-slate-600 whitespace-pre-line leading-relaxed">
+                {settings.hours}
+              </p>
             </div>
           </div>
           <div className="pt-8 border-t border-slate-200 text-center text-slate-500 text-sm">
-            <p>&copy; {new Date().getFullYear()} BS Cortes. Todos os direitos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} {settings.logoUrl.startsWith('http') ? 'BS Cortes' : settings.logoUrl}. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>

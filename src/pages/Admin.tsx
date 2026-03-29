@@ -1,17 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User, setPersistence, inMemoryPersistence } from 'firebase/auth';
-import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../utils/firestoreErrors';
-import { LogOut, Plus, Trash2 } from 'lucide-react';
+import { LogOut, Plus, Trash2, Save } from 'lucide-react';
 
 export default function Admin() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'services' | 'fabrics'>('services');
+  const [activeTab, setActiveTab] = useState<'services' | 'fabrics' | 'settings'>('settings');
 
   const [services, setServices] = useState<any[]>([]);
   const [fabrics, setFabrics] = useState<any[]>([]);
+  
+  // Settings state
+  const [settings, setSettings] = useState({
+    address: '',
+    phone: '',
+    whatsapp: '',
+    hours: '',
+    logoUrl: '',
+    yearsOfExperience: '',
+    email: '',
+    instagram: ''
+  });
 
   // Form states
   const [serviceForm, setServiceForm] = useState({ title: '', description: '', iconName: 'Scissors' });
@@ -40,8 +52,13 @@ export default function Admin() {
       
       const fSnap = await getDocs(collection(db, 'fabrics'));
       setFabrics(fSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+
+      const settingsDoc = await getDoc(doc(db, 'settings', 'general'));
+      if (settingsDoc.exists()) {
+        setSettings({ ...settings, ...settingsDoc.data() });
+      }
     } catch (error) {
-      handleFirestoreError(error, OperationType.LIST, 'services/fabrics');
+      handleFirestoreError(error, OperationType.LIST, 'services/fabrics/settings');
     }
   };
 
@@ -119,6 +136,16 @@ export default function Admin() {
     }
   };
 
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await setDoc(doc(db, 'settings', 'general'), settings);
+      alert('Configurações salvas com sucesso!');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'settings/general');
+    }
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50">Carregando...</div>;
 
   if (!user) {
@@ -176,6 +203,12 @@ export default function Admin() {
       <div className="max-w-6xl mx-auto p-6">
         <div className="flex gap-4 mb-8 border-b border-slate-200">
           <button 
+            className={`pb-4 px-2 font-medium transition-colors ${activeTab === 'settings' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
+            onClick={() => setActiveTab('settings')}
+          >
+            Configurações Gerais
+          </button>
+          <button 
             className={`pb-4 px-2 font-medium transition-colors ${activeTab === 'services' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
             onClick={() => setActiveTab('services')}
           >
@@ -188,6 +221,55 @@ export default function Admin() {
             Tecidos
           </button>
         </div>
+
+        {activeTab === 'settings' && (
+          <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 max-w-4xl">
+            <h2 className="text-xl font-bold mb-6 text-slate-800">Informações do Site</h2>
+            <form onSubmit={handleSaveSettings} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nome / Título do Site</label>
+                  <input type="text" value={settings.logoUrl} onChange={e => setSettings({...settings, logoUrl: e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg" placeholder="Ex: BS Cortes" />
+                  <p className="text-xs text-slate-500 mt-1">Pode ser o nome da empresa ou URL de uma imagem de logotipo.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Anos de Experiência</label>
+                  <input type="number" value={settings.yearsOfExperience} onChange={e => setSettings({...settings, yearsOfExperience: e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg" placeholder="Ex: 15" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Endereço Completo</label>
+                  <input type="text" value={settings.address} onChange={e => setSettings({...settings, address: e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg" placeholder="Ex: Rua das Flores, 123 - Centro" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Horário de Funcionamento</label>
+                  <input type="text" value={settings.hours} onChange={e => setSettings({...settings, hours: e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg" placeholder="Ex: Seg a Sex: 08h às 18h" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Telefone Fixo</label>
+                  <input type="text" value={settings.phone} onChange={e => setSettings({...settings, phone: e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg" placeholder="Ex: (11) 3333-4444" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">WhatsApp</label>
+                  <input type="text" value={settings.whatsapp} onChange={e => setSettings({...settings, whatsapp: e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg" placeholder="Ex: 5511999999999" />
+                  <p className="text-xs text-slate-500 mt-1">Apenas números, com código do país (55).</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">E-mail de Contato</label>
+                  <input type="email" value={settings.email} onChange={e => setSettings({...settings, email: e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg" placeholder="Ex: contato@bscortes.com.br" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Instagram (URL ou @)</label>
+                  <input type="text" value={settings.instagram} onChange={e => setSettings({...settings, instagram: e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg" placeholder="Ex: @bscortes" />
+                </div>
+              </div>
+              <div className="pt-4 border-t border-slate-100 flex justify-end">
+                <button type="submit" className="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors">
+                  <Save className="w-5 h-5" /> Salvar Configurações
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {activeTab === 'services' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
