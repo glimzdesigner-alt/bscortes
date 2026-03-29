@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Scissors, Ruler, Layers, Package, CheckCircle, MessageCircle, Phone, MapPin } from 'lucide-react';
+import { Scissors, Ruler, Layers, Package, CheckCircle, MessageCircle, Phone, MapPin, Menu, X } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -44,6 +44,7 @@ const defaultFabrics = [
 ];
 
 export default function Landing() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [services, setServices] = useState<any[]>(defaultServices);
   const [fabrics, setFabrics] = useState<any[]>(defaultFabrics);
   const [settings, setSettings] = useState({
@@ -121,7 +122,9 @@ export default function Landing() {
                 <span className="font-bold text-2xl tracking-tight text-blue-900">{settings.logoUrl}</span>
               )}
             </div>
-            <div className="hidden md:flex space-x-8">
+            
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-8">
               <a href="#servicos" className="text-slate-600 hover:text-orange-500 transition-colors font-medium">Serviços</a>
               <a href="#tecidos" className="text-slate-600 hover:text-orange-500 transition-colors font-medium">Tecidos</a>
               <a href="#sobre" className="text-slate-600 hover:text-orange-500 transition-colors font-medium">Sobre</a>
@@ -129,17 +132,62 @@ export default function Landing() {
                 Admin
               </a>
             </div>
-            <a 
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden md:flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full font-medium transition-colors"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>Orçamento via WhatsApp</span>
-            </a>
+            
+            {/* Desktop CTA */}
+            <div className="hidden md:flex items-center">
+              <a 
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full font-medium transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Orçamento via WhatsApp</span>
+              </a>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center">
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-slate-600 hover:text-blue-600 focus:outline-none p-2"
+                aria-label="Menu principal"
+              >
+                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 shadow-lg overflow-hidden"
+          >
+            <div className="flex flex-col space-y-2">
+              <a href="#servicos" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-orange-500 hover:bg-slate-50 border border-transparent hover:border-slate-100">Serviços</a>
+              <a href="#tecidos" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-orange-500 hover:bg-slate-50 border border-transparent hover:border-slate-100">Tecidos</a>
+              <a href="#sobre" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-orange-500 hover:bg-slate-50 border border-transparent hover:border-slate-100">Sobre</a>
+              <a href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-slate-500 hover:text-blue-600 hover:bg-slate-50 border border-transparent hover:border-slate-100">Painel Admin</a>
+              
+              <div className="pt-4 mt-2 border-t border-slate-100">
+                <a 
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3.5 rounded-xl font-bold transition-colors shadow-sm"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Orçamento via WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </nav>
 
       {/* Hero Section */}
